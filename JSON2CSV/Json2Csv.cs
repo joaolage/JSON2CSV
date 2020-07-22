@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
-
-
 
 namespace JSON2CSV
 {
@@ -66,14 +63,33 @@ namespace JSON2CSV
 
             if(arquivos.Length > 0)
             {
+                StringBuilder sbLog = new StringBuilder();
+                sbLog.Append(string.Format(@"{0} - Covertendo {1} arquivo(s).",
+                             DateTime.Now.ToString(),
+                             arquivos.Length));
+                sbLog.AppendLine();
+
                 foreach (var arquivo in arquivos)
                 {
                     //Ler os arquivos
                     string conteudoJson = LerArquivo(arquivo.FullName);
                     string conteudoCsv = Converter(conteudoJson);
 
+                    sbLog.Append(string.Format(@"{0} - Início da conversão do arquivo {1}.",
+                             DateTime.Now.ToString(),
+                             arquivo.Name));
+                    sbLog.AppendLine();
+                  
                     EscreverArquivo(conteudoCsv, PathCSV, arquivo.Name.Replace(".json", ".csv"));
+
+                    sbLog.Append(string.Format(@"{0} - Fim da conversão do arquivo {1}.",
+                             DateTime.Now.ToString(),
+                             arquivo.Name));
+                    sbLog.AppendLine();
+                    sbLog.AppendLine();
                 }
+
+                EscreverArquivo(sbLog.ToString(), PathLog, DateTime.Now.ToString("yyyy-mm-dd_HH-mm-ss") + ".log");
             }
             else
             {
@@ -98,13 +114,12 @@ namespace JSON2CSV
                         Directory.CreateDirectory(path);
                 }
 
-             
                 File.WriteAllText(path + "\\" + fileNane, conteudo);
                 sucesso = true;
             }
             catch (Exception ex)
             {
-                sucesso = false;
+                throw;
             }
 
             return sucesso;
@@ -126,7 +141,6 @@ namespace JSON2CSV
                 conteudo = "";
                 throw;
             }
-
             return conteudo;
         }
 
